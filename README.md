@@ -70,48 +70,184 @@ To focus on security only, add a `categories` section to the config. This will l
 ```
 The three flag settings are `off`, `warn`, and `error`
 ##### Output Format
-
+JSON or Human readable in the CLI
 ##### Github Actions Support
-
+Native
 ##### Pricing
-
-##### Exit Codes
+Team plan is 30/mo, enterprise pricing exists, but a meeting with spokesperson is required.
 
 ---
 ### Fallow
+This [adoption](https://fallow.tools/docs/adoption/) documentation is a helpful guide to starting to understand what a config could initially look like and some first steps
 ##### Install Command
 
+If running directly, use a direct install 
+```
+npm install -g fallow
+```
+
+Branch from main, then create a `.yaml` file in the `.github/workflows` package. Then commit and push this change. Then we open a PR against main and merge. 
+
+##### Output formats
+- For human readable output, `npx fallow audit --format json` to make machine readable json
+- For quality scoring + refactor targets `npx fallow health --score --hotspots --targets`
+- Cleanup-specific `npx fallow dead-code`
 ##### Configuration Details
+The config is only available with the pro tier and higher, and the highest priority config file is:
+`.fallowrc.json` followed by others as seen in the [doc](https://fallow.tools/docs/configuration/overview/)
 
+Moreover, in the config, a `production` mode can be toggled which automatically ignores any test or mock files in the project.
 ##### How to focus on errors/security only
+Fallow looks to isolate dead code, duplicated code, and architecture boundaries, in the documentation there is nothing specifically pointing to it as a tool for security, though their features can be turned on an off with the following addition to the config:
 
-##### Output Format
-
+```
+{
+  "production": {
+    "deadCode": false,
+    "health": true,
+    "dupes": false
+  }
+}
+```
 ##### Github Actions Support
-
+Native see: [doc](https://fallow.tools/docs/integrations/ci/)
 ##### Pricing
-
-##### Exit Codes
+- Free tier does not allow for the use of a Config file.
+- Pro tier is $20/dev/mon 
+- Enterprise is not listed, must contact sales team
 
 ---
 
-##### OTHER TOOLS (2-3)
+##### Additional Tools:
+
+### CodeQL From GitHub
 ##### Install Command
+Install by creating a `.github/workflows/codeql-analysis.yml` file and PR to main.
+Because native GitHub, use github workflow [docs](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#on), and specifiy when the action should fire. To specify the language to scan we add under uses ->
 
+```
+- uses: github/codeql-action/init@v4
+  with:
+    languages: javascript-typescript
+
+```
+
+Also with multiple languages:
+```
+jobs:
+  analyze:
+    name: Analyze
+    ...
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: javascript-typescript
+            build-mode: none
+          - language: python
+            build-mode: none
+
+```
+In the YAML file
 ##### Configuration Details
+The YAML file can specify packs and queries (and can be treated as a config file), or a custom config file can be used.
 
+Specify this in the initial `.yml` file in the workflow package as such:
+```
+- uses: github/codeql-action/init@v4
+  with:
+    config-file: ./.github/codeql/codeql-config.yml
+
+```
+
+Then you can add to the config as such:
+
+```
+- uses: github/codeql-action/init@v4
+  with:
+    languages: ${{ matrix.language }}
+    config: |
+      disable-default-queries: true
+      threat-models: local
+      queries:
+        - uses: security-extended
+      query-filters:
+        - exclude:
+            tags: /cwe-020/
+```
+
+Advanced setup is also available on GitHub [doc](https://docs.github.com/en/code-security/how-tos/find-and-fix-code-vulnerabilities/configure-code-scanning/configuring-advanced-setup-for-code-scanning)
 ##### How to focus on errors/security only
-
+The CI integration natively only focuses on code security.
 ##### Output Format
-
+Output can be specified to be SARIF
 ##### Github Actions Support
-
+Native
 ##### Pricing
-
+Comes with the GitHub actions pricing
 ##### Exit Codes
+0 - success
+1 - successful answer no
+2 - something went wrong
+[3 and onward](https://docs.github.com/en/code-security/reference/code-scanning/codeql/codeql-cli/exit-codes)
+
+
 ---
 
+### Semgrep
+##### Intsall
+Adding a `semgrep.yml` file to repo. 
+see [doc](https://docs.semgrep.dev/deployment/add-semgrep-to-ci#github-actions) for details on the github actions connection as well.
+##### Config details
+The config is done in the `.yml` file. In the config we can specify schedule, branches, runner, etc.
+This [doc](https://docs.semgrep.dev/semgrep-ci/sample-ci-configs#sample-github-actions-configuration-file) has a good starter config which could be further specialized.
 
+#### Error/security focus
+The scan is by default security focused. The severity can be altered to error, warn, or info in the `.yml` file:
+```
+- run: semgrep ci --severity ERROR
+```
+#### Output Format
+Many output forms available, use flags in the CLI `--text` for human readable or `--json` for JSON format.
+
+In the workflow file add to the `run` section
+```
+- run: semgrep ci --json --json-output=semgrep.json
+```
+
+and upload to github advanced security
+```
+- uses: github/codeql-action/upload-sarif@v2
+  with:
+    sarif_file: semgrep.sarif
+```
+
+or as an artifact
+```
+- uses: actions/upload-artifact@v3
+  with:
+    name: semgrep-results
+    path: semgrep.sarif
+```
+#### Github Actions Support
+Available
+#### Pricing
+
+#### Exit Codes
+Exit codes
+
+Semgrep can finish with the following exit codes:
+0: Semgrep ran successfully and found no errors (or did find errors, but the --error flag is not being used).
+1: Semgrep ran successfully and found issues in your code (while using the --error flag).
+2: Semgrep failed.
+3: Invalid syntax of the scanned language. This error occurs only while using the --strict flag.
+4: Semgrep encountered an invalid pattern in the rule schema.
+5: Semgrep configuration is not valid YAML.
+7: At least one rule in the configuration is invalid.
+8: Semgrep does not understand specified language.
+13: The API key is invalid.
+14: [Deprecated] Semgrep scan failed.
+---
 ## Sample Project Specs
 
 ###### Tech Stack
