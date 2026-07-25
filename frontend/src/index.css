@@ -1,0 +1,31 @@
+/* Global styles. Imported once by main.tsx, applies to the whole app.
+   Components will get their own CSS as they're built. */
+
+:root {
+  --text: #1f2933;
+  --muted: #6b7280;
+  --bg: #f7f8fa;
+  --surface: #fff;
+  --border: #e2e5ea;
+  --accent: #2563eb;
+
+  font: 16px/1.5 system-ui, "Segoe UI", Roboto, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  margin: 0;
+}
+
+main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+h1 {
+  font-size: 28px;
+  margin: 0 0 16px;
+}
