@@ -12,6 +12,11 @@
 // This mirrors the backend's `z.enum(["general", "ED"])`.
 export type Department = "general" | "ED";
 
+// A UI-only type — the backend has no concept of "all", that's just us choosing
+// to send no department filter at all. It lives here anyway so App and Header
+// can share one definition rather than each inventing their own.
+export type DepartmentFilter = Department | "all";
+
 // An object type. Every Patient must have all of these fields, with these types.
 export type Patient = {
   id: number;

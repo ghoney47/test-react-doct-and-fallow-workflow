@@ -19,13 +19,157 @@ body {
   margin: 0;
 }
 
-main {
+h1 {
+  font-size: 28px;
+  margin: 0;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 20px 24px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.header-sub {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.filters {
+  margin-left: auto;
+  display: flex;
+  gap: 4px;
+}
+
+.filter {
+  font: inherit;
+  font-size: 14px;
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.filter:hover {
+  background: var(--bg);
+}
+
+.filter.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* Body */
+.body {
   max-width: 1100px;
   margin: 0 auto;
   padding: 24px;
 }
 
-h1 {
-  font-size: 28px;
-  margin: 0 0 16px;
+.empty {
+  color: var(--muted);
+  padding: 48px 0;
+  text-align: center;
+}
+
+/* Add-patient form */
+.patient-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.patient-form input,
+.patient-form select {
+  font: inherit;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: inherit;
+}
+
+.patient-form input:nth-of-type(2) {
+  flex: 1;
+  min-width: 180px;
+}
+
+.patient-form button {
+  font: inherit;
+  font-weight: 600;
+  padding: 9px 16px;
+  border: none;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+
+.patient-form button:hover {
+  background: #1d4ed8;
+}
+
+.error {
+  color: #b42318;
+  background: #fef3f2;
+  border: 1px solid #fecdca;
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+
+/* Patient list */
+.patient-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.patient {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.patient-name {
+  font-weight: 600;
+}
+
+.patient-complaint {
+  color: var(--muted);
+  flex: 1;
+}
+
+.tag {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+}
+
+.tag-ED {
+  color: #b42318;
+  background: #fef3f2;
+  border-color: #fecdca;
+}
+
+.tag-general {
+  color: #175cd3;
+  background: #eff8ff;
+  border-color: #b2ddff;
 }
