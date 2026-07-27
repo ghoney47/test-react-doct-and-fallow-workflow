@@ -1,5 +1,6 @@
 import type { Patient, NewPatient } from "../types.ts";
 import PatientForm from "./PatientForm.tsx";
+import PatientStats from "./PatientStats.tsx";
 
 // Props are just the arguments a component takes. This type describes them.
 // Naming it `<Component>Props` is convention, not a rule — but everyone does it,
@@ -17,6 +18,7 @@ type BodyProps = {
   // a problem when you're threading a prop through four components that
   // don't care about it.
   onAdd: (patient: NewPatient) => void;
+  onRemove: (id: number) => void;
 };
 
 // `{ patients }: BodyProps` is two things at once:
@@ -28,7 +30,11 @@ type BodyProps = {
 //
 // The payoff: <Body /> with no patients is now a compile error, and so is
 // <Body patients={5} />. The contract between App and Body is checked.
-function Body({ patients, error, onAdd }: BodyProps) {
+function Body({ patients, error, onAdd, onRemove }: BodyProps) {
+  // SA-09
+  // Show the board alphabetically rather than in arrival order.
+  patients.sort((a, b) => a.name.localeCompare(b.name)); // this is modifying a prop passed through (bad conventions, props should be read only)
+
   // An early return — a plain `if`, above the JSX, where statements are legal.
   // Used here rather than another ternary because the two branches share almost
   // nothing. Without this, a backend that's down would render "No patients yet."
@@ -44,6 +50,11 @@ function Body({ patients, error, onAdd }: BodyProps) {
   return (
     <main className="body">
       <PatientForm onAdd={onAdd} />
+
+      <PatientStats
+        patients={patients}
+        title={`${patients.length} on the board`}
+      />
 
       {/* JSX has no `if`. Anything inside {} is a plain JavaScript expression,
           and `if` is a statement, not an expression. So conditionals use the
@@ -64,6 +75,14 @@ function Body({ patients, error, onAdd }: BodyProps) {
               <span className="patient-name">{p.name}</span>
               <span className="patient-complaint">{p.chiefComplaint}</span>
               <span className={`tag tag-${p.department}`}>{p.department}</span>
+              <button
+                type="button"
+                className="patient-remove"
+                aria-label={`Discharge ${p.name}`}
+                onClick={() => onRemove(p.id)}
+              >
+                ×
+              </button>
             </li>
           ))}
         </ul>

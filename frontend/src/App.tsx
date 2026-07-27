@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import type { Patient, NewPatient, DepartmentFilter } from "./types.ts";
-import { getPatients, createPatient } from "./api/patients.ts";
+import { getPatients, createPatient, deletePatient } from "./api/patients.ts";
 import Header from "./components/Header.tsx";
 import Body from "./components/Body.tsx";
 
@@ -62,6 +62,35 @@ function App() {
     // fetch → setPatients → re-render → fetch → forever.
   }, [department]);
 
+  // SA-01
+  // Refresh board every 30 seconds
+  useEffect(() => {
+    setInterval(() => {
+      getPatients(department === "all" ? undefined : department)
+        .then(setPatients)
+        .catch(() => {});
+    }, 30000); // no return (cleanup) function, causes multiple timers to be created and would run simulaneously
+  }, [department]);
+
+  // SA-02
+  // Show the current count in the browser tab.
+  useEffect(() => {
+    document.title = `Patient Board — ${patients.length} in ${department}`;
+  }, []);
+
+  // SA-03
+  // Discharge: drop the patient from the board once the server confirms.
+  async function handleRemove(id: number) {
+    try {
+      await deletePatient(id);
+      const i = patients.findIndex((p) => p.id === id);
+      patients.splice(i, 1); // modifying in place will NOT cause a react re-render
+      setPatients(patients); // here we need to rebuild the array without the particular id
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not remove patient");
+    }
+  }
+
   // The other half of "data down, events up". PatientForm collects the fields
   // and calls this; App owns the list, so App decides what a new patient means.
   async function handleAdd(input: NewPatient) {
@@ -94,7 +123,12 @@ function App() {
         onDepartmentChange={setDepartment}
         count={patients.length}
       />
-      <Body patients={patients} error={error} onAdd={handleAdd} />
+      <Body
+        patients={patients}
+        error={error}
+        onAdd={handleAdd}
+        onRemove={handleRemove}
+      />
     </>
   );
 }
