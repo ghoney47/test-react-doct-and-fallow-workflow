@@ -19,7 +19,7 @@ function PatientStats({ patients, title }: PatientStatsProps) {
     for (const p of patients)
       counts[p.department] = (counts[p.department] ?? 0) + 1;
     return Object.entries(counts);
-  }, [patients.map((p) => p.department)]); // depenency array must hold stable references 
+  }, [patients.map((p) => p.department)]); // depenency array must hold stable references
 
   // SA-06
   // the row component being called within the PatientStats would cause a new Row component to be created each render
@@ -41,11 +41,10 @@ function PatientStats({ patients, title }: PatientStatsProps) {
   // prefer the native interactive element when possible
   return (
     <section className="stats">
-      {/* SA-07 */}
+      e{/* SA-07 */}
       <div className="stats-toggle" onClick={() => setOpen(!open)}>
         {heading} {open ? "▾" : "▸"}
       </div>
-
       {open && (
         <ul className="stat-list">
           {/* SA-04 */}
@@ -54,7 +53,6 @@ function PatientStats({ patients, title }: PatientStatsProps) {
           ))}
         </ul>
       )}
-
       {/* SA-05 */}
       {latest && (
         <p

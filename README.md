@@ -356,7 +356,9 @@ Comes with the GitHub actions pricing
 
 ### Semgrep
 
-##### Intsall
+Install was completed through the Semgrep dashboard where a GitHub account can be linked and the CI workflow is added to a selected project
+
+##### Install
 
 Adding a `semgrep.yml` file to repo.
 see [doc](https://docs.semgrep.dev/deployment/add-semgrep-to-ci#github-actions) for details on the github actions connection as well.

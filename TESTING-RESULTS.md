@@ -35,3 +35,13 @@ See `README.md` for the configuration used.
 None of the bugs were flagged on this run. Did raise a security point where we did not specify permissions in the fallow workflow.
 
 ![CodeQL Summary](./images/codeql-sum.png)
+
+## Semgrep
+
+Only security findings in the workflow files.
+
+![Semgrep Dashboard](./images/semgrep.png)
+
+## Takeaways
+
+Because the tools are using pattern matching static analysis, many of the logic errors may be missed; however, the larger and more common mistakes will be noted. From the testing it looks to be React Doctor and Fallow could be great to introduce into a CI/CD pipeline, where CodeQL and Semgrep may need more testing on a larger scale. Nonetheless, all the tools were very straightforward in their installation and use.
