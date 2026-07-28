@@ -7,3 +7,5 @@ edition = "2024"
 serde = { version = "1.0.228", features = ["derive"]}
 chrono = { version = "0.4.45", features = ["serde"] }
 validator = { version = "0.21.0", features = ["derive"] }
+axum = "0.8.9"
+tokio = { version = "1.53.1", features = ["full"] }
