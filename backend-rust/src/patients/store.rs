@@ -20,6 +20,7 @@ struct Inner {
 pub struct Store(Arc<Mutex<Inner>>);
 
 impl Store {
+    /// Returns all patients in storage, or (if specified) in a department
     pub fn get_all(&self, department: Option<Department>) -> Vec<Patient> {
         // this call is grabbing the `Arc<Mutex<Inner>>` and locking it to access the inner data
         // and unwrap panics if another thread has affected the mutex
@@ -38,6 +39,8 @@ impl Store {
         }
     }
 
+    /// Returns a patient with the specified ID, or None if does
+    /// not exist
     pub fn get_by_id(&self, id: u32) -> Option<Patient> {
         let inner = self.0.lock().unwrap();
 
@@ -45,6 +48,7 @@ impl Store {
         inner.patients.iter().find(|p| p.id == id).cloned()
     }
 
+    /// Creates a new patient and adds to internal storage
     pub fn create(&self, input: NewPatient) -> Patient {
         let mut inner = self.0.lock().unwrap();
         inner.next_id += 1;
@@ -65,5 +69,43 @@ impl Store {
         patient
     }
 
-    // Continue with update and remove
+    /// Updates a given patient (specified by ID)
+    pub fn update(&self, id: u32, changes: PatientUpdate) -> Option<Patient> {
+        let mut inner = self.0.lock().unwrap();
+        let mut patient = inner.patients.iter_mut().find(|p| p.id == id)?;
+
+        if let Some(name) = changes.name {
+            patient.name = name
+        };
+
+        if let Some(dob) = changes.dob {
+            patient.dob = dob
+        };
+
+        if let Some(cc) = changes.chief_complaint {
+            patient.chief_complaint = cc
+        };
+
+        if let Some(ar_time) = changes.arrival_time {
+            patient.arrival_time = ar_time
+        };
+
+        if let Some(dep_time) = changes.departure_time {
+            patient.departure_time = dep_time
+        };
+
+        Some(patient.clone())
+    }
+
+    ///Removes patient by ID
+    pub fn remove(&self, id: u32) -> bool {
+        let mut inner = self.0.lock().unwrap();
+        match inner.patients.iter_mut().position(|p| p.id == id) {
+            Some(index) => {
+                inner.patients.remove(index);
+                return true;
+            }
+            None => return false,
+        };
+    }
 }
