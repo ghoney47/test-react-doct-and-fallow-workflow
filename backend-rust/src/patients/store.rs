@@ -1,9 +1,6 @@
-use crate::patients::schema::{Department, NewPatient, Patient, PatientMove, PatientUpdate};
+use crate::patients::schema::{Department, NewPatient, Patient, PatientUpdate};
 use chrono::Utc;
-use std::{
-    clone,
-    sync::{Arc, Mutex},
-};
+use std::sync::{Arc, Mutex};
 
 /// Internal Data Storage
 // No built-in thread safety
@@ -20,6 +17,13 @@ struct Inner {
 pub struct Store(Arc<Mutex<Inner>>);
 
 impl Store {
+    pub fn new() -> Store {
+        Store(Arc::new(Mutex::new(Inner {
+            patients: vec![],
+            next_id: 0,
+        })))
+    }
+
     /// Returns all patients in storage, or (if specified) in a department
     pub fn get_all(&self, department: Option<Department>) -> Vec<Patient> {
         // this call is grabbing the `Arc<Mutex<Inner>>` and locking it to access the inner data
@@ -72,7 +76,7 @@ impl Store {
     /// Updates a given patient (specified by ID)
     pub fn update(&self, id: u32, changes: PatientUpdate) -> Option<Patient> {
         let mut inner = self.0.lock().unwrap();
-        let mut patient = inner.patients.iter_mut().find(|p| p.id == id)?;
+        let patient = inner.patients.iter_mut().find(|p| p.id == id)?; // `?` will return None if not found
 
         if let Some(name) = changes.name {
             patient.name = name
@@ -91,9 +95,17 @@ impl Store {
         };
 
         if let Some(dep_time) = changes.departure_time {
-            patient.departure_time = dep_time
+            patient.departure_time = Some(dep_time)
         };
 
+        Some(patient.clone())
+    }
+
+    ///moves patient by ID and specified department
+    pub fn move_patient(&self, id: u32, dept: Department) -> Option<Patient> {
+        let mut inner = self.0.lock().unwrap();
+        let patient = inner.patients.iter_mut().find(|p| p.id == id)?;
+        patient.department = dept;
         Some(patient.clone())
     }
 
